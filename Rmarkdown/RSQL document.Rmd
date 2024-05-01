@@ -1,12 +1,8 @@
 ---
-title: ""
-
+title: "Untitled"
 author: "Masoud Faridi"
-date: "Masoud Faridi-2024-04-30"
-output:
-  beamer_presentation: default
-  ioslides_presentation: default
-  slidy_presentation: default
+date: "2024-05-01"
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -18,20 +14,19 @@ my_pass="8952021005"
 ## Writing SQL with R
 
 
-\tiny
 [https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL](https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL)
 
 
 [https://www.w3schools.com/sql/](https://www.w3schools.com/sql/)
-\tiny
 
-\tiny Masoud Faridi 
+
+
 
 ## Connect R to postgresql
 
 
 
-\small
+
 ```{r}
 library(DBI,quietly = TRUE)
 library(RPostgres,quietly = TRUE)
@@ -42,14 +37,18 @@ con <- dbConnect(RPostgres::Postgres(),
                  user = "postgres", dbname ="Northwind",
                  password =my_pass )
 tables<-dbListTables(con)
-data.frame(tables=tables)
+tables
 ```
 
 
 
-## \small SQL SELECT Statement  [https://www.w3schools.com/sql/sql_select.asp](https://www.w3schools.com/sql/sql_select.asp)
 
-\small
+
+
+
+## SQL SELECT Statement \small[https://www.w3schools.com/sql/sql_select.asp](https://www.w3schools.com/sql/sql_select.asp)
+
+
 
 
 ```{sql}
@@ -67,7 +66,7 @@ tbl(con,"customers") %>% select(customername, city) %>%
 tbl(con,"customers") %>% select(customername, city) %>% 
   show_query()
 ```
-\tiny
+
 $$
 \begin{array}{c|c}
 \text{SQL QUERY} & \text{dplyr CODE} \\
@@ -77,13 +76,13 @@ $$
 \text{SELECT customername, city FROM customers} & \text{tbl(con,"customers") \%>\% select(customername, city)}
 \end{array}
 $$
-\tiny
 
 
 
-## SQL SELECT DISTINCT Statement \tiny[https://www.w3schools.com/sql/sql_distinct.asp](https://www.w3schools.com/sql/sql_distinct.asp)
 
-\small
+## SQL SELECT DISTINCT Statement \small [https://www.w3schools.com/sql/sql_distinct.asp](https://www.w3schools.com/sql/sql_distinct.asp)
+
+
 
 ```{sql}
 SELECT DISTINCT Country FROM Customers LIMIT 3;
@@ -95,19 +94,18 @@ tbl(con,"customers") %>% distinct(country) %>% head(3)
 
 
 
-## 
 
-\small
+### Count Distinct
+
+
+
 ```{sql}
-
+SELECT COUNT(DISTINCT Country) FROM Customers;
 ```
 
 ```{r}
 
 ```
-
-
-
 
 
 
@@ -116,11 +114,6 @@ tbl(con,"customers") %>% distinct(country) %>% head(3)
 
 
 
-
-
-```{r}
-dbDisconnect(con)
-```
 
 
 
