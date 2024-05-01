@@ -1,0 +1,90 @@
+---
+title: "Untitled"
+author: "Masoud Faridi"
+date: "2024-04-30"
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(connection = "con",message=FALSE,comment = NA)
+my_pass="8952021005"
+library(DBI,quietly = TRUE)
+library(RPostgres,quietly = TRUE)
+library(dplyr,quietly = TRUE)
+library(dbplyr,quietly = TRUE)
+```
+
+
+## Connect R to postgresql
+
+
+
+\small
+```{r}
+con <- dbConnect(RPostgres::Postgres(), 
+                 host = "localhost",port="5432", 
+                 user = "postgres", dbname ="Northwind",
+                 password =my_pass )
+tables<-dbListTables(con)
+data.frame(tables=tables)
+```
+
+\tiny
+Database Northwind [https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL](https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL)
+
+
+[https://www.w3schools.com/sql/](https://www.w3schools.com/sql/)
+\tiny
+
+
+## \small SQL SELECT Statement  [https://www.w3schools.com/sql/sql_select.asp](https://www.w3schools.com/sql/sql_select.asp)
+
+\small
+
+
+```{sql}
+SELECT CustomerName, City FROM Customers LIMIT 3;
+```
+```{r}
+tbl(con,"customers") %>% select(customername, city) %>% 
+  head(3)
+```
+
+## show_query() 
+
+
+```{r}
+tbl(con,"customers") %>% select(customername, city) %>% 
+  show_query()
+```
+\tiny
+$$
+\begin{array}{c|c}
+\text{SQL QUERY} & \text{dplyr CODE} \\
+\hline
+\text{SELECT * FROM customers} &\text{tbl(con,"customers")} \\
+\text{SELECT CustomerName FROM Customers} & \text{tbl(con,"customers") \%>\% select(customername)} \\
+\text{SELECT CustomerName, City FROM Customers} & \text{tbl(con,"customers") \%>\% select(customername, city)}
+\end{array}
+$$
+\tiny
+
+
+
+## END
+
+
+
+
+
+
+```{r}
+dbDisconnect(con)
+```
+
+
+
+

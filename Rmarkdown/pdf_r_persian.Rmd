@@ -1,0 +1,271 @@
+---
+title: "Untitled"
+author: "Masoud Faridi"
+date: "2024-04-30"
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(connection = "con",message=FALSE,comment = NA)
+my_pass="8952021005"
+library(DBI,quietly = TRUE)
+library(RPostgres,quietly = TRUE)
+library(dplyr,quietly = TRUE)
+library(dbplyr,quietly = TRUE)
+```
+
+
+## Connect R to postgresql
+
+
+
+\small
+```{r}
+con <- dbConnect(RPostgres::Postgres(), 
+                 host = "localhost",port="5432", 
+                 user = "postgres", dbname ="Northwind",
+                 password =my_pass )
+tables<-dbListTables(con)
+data.frame(tables=tables)
+```
+
+\tiny
+Database Northwind [https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL](https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL)
+
+PostgreSQL+pgAdmin
+
+[https://www.w3schools.com/sql/](https://www.w3schools.com/sql/)
+\tiny
+
+
+## SELECT DISTINCT country FROM customers LIMIT 3;
+
+
+\hfil ![pgAdmin](images/01.png){width=200px}  \hfil
+
+
+\small 
+```{r}
+tbl(con,"customers") %>%
+  distinct(country) %>% head(3) 
+```
+\small 
+
+
+## show_query(): Generate SQL Query using R dbplyr 
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(customerid, customername) %>% head(5) 
+```
+\small 
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(customerid, customername) %>% show_query()
+```
+\small 
+
+
+
+
+## \small SELECT customername FROM Customers WHERE Country='Mexico';
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  filter(country=="Mexico") %>%  select(customername) 
+```
+\small 
+
+ 
+
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  filter(country=="Mexico") %>%  
+  select(customername) %>%   show_query()
+```
+\small 
+
+
+## \tiny SELECT * FROM Customers WHERE (Country = 'Germany') AND (city = 'Berlin');
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(country,city, address) %>%
+  filter(country=="Germany",city=="Berlin") 
+```
+\small
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(country,city, address) %>%
+  filter(country=="Germany",city=="Berlin")  %>% show_query()
+```
+\small
+
+
+
+## \tiny SELECT productname, price FROM products WHERE (price > 80.0) \tiny
+
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"products") %>%
+  select(productname,price) %>%
+  filter(price> 80)  
+```
+\small
+
+
+
+\small 
+```{r}
+tbl(con,"products") %>%
+  select(productname,price) %>%
+  filter(price> 80)  %>% show_query()
+```
+\small
+
+## \tiny SELECT productname, price FROM products WHERE price > 3 * (SELECT AVG(price) FROM products) \tiny
+
+
+
+
+\small 
+```{r,silent=TRUE}
+tbl(con,"products") %>%
+  select(productname,price) %>%
+  filter(price> 3*mean(price,na.rm = TRUE))
+```
+\small
+
+\small 
+```{sql}
+SELECT productname, price FROM products 
+	WHERE price > 3 * (SELECT AVG(price) FROM products);
+```
+\small
+
+
+## \small SELECT COUNT(*) AS "count_1" FROM Products;
+
+
+
+
+```{r,message=FALSE}
+tbl(con,"products") %>% count(name="count_1")
+```
+\small
+
+\small 
+```{r,message=FALSE}
+tbl(con,"products") %>% count(name="count_1") %>% show_query()
+```
+\small
+
+
+```{sql}
+SELECT COUNT(*) AS "count_1" FROM Products;
+```
+
+
+## \small SELECT COUNT(ProductID) FROM Products WHERE Price > 20;
+
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"products") %>%filter(price > 20) %>% count()
+```
+\small
+
+\small 
+```{r,message=FALSE}
+tbl(con,"products") %>%filter(price > 20) %>% show_query()
+```
+\small
+
+\small
+```{sql}
+SELECT COUNT(ProductID) FROM Products WHERE Price > 20;
+```
+
+
+
+
+
+
+## \small SELECT COUNT(*) FROM products WHERE price > (SELECT AVG(price) FROM products);
+
+\small 
+```{r,message=FALSE}
+tbl(con,"products") %>%filter(price > mean(price,na.rm = TRUE)) %>% count()
+```
+\small
+
+
+\small
+```{sql}
+SELECT COUNT(*) FROM products WHERE
+price > (SELECT AVG(price) FROM products);
+```
+
+
+
+
+## COUNT + GROUP BY + ORDER BY
+
+
+\small
+```{sql}
+SELECT COUNT(CustomerID), Country FROM Customers
+GROUP BY Country ORDER BY COUNT(CustomerID) DESC
+LIMIT 3;
+```
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%  count(country,name = "count") %>%
+  arrange(desc(count)) %>% head(3)
+```
+\small
+
+
+
+
+
+
+
+## END
+
+
+
+
+
+
+```{r}
+dbDisconnect(con)
+```
+
+```{r,message=FALSE}
+#
+```
+
+
+

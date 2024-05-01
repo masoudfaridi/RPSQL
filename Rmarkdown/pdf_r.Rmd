@@ -1,0 +1,185 @@
+---
+title: "Untitled"
+author: "Masoud Faridi"
+date: "2024-04-30"
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(connection = "con",message=FALSE,comment = NA)
+my_pass="8952021005"
+library(DBI,quietly = TRUE)
+library(RPostgres,quietly = TRUE)
+library(dplyr,quietly = TRUE)
+library(dbplyr,quietly = TRUE)
+```
+
+
+## Connect R to postgresql
+
+
+
+\small
+```{r}
+con <- dbConnect(RPostgres::Postgres(), 
+                 host = "localhost",port="5432", 
+                 user = "postgres", dbname ="Northwind",
+                 password =my_pass )
+tables<-dbListTables(con)
+data.frame(tables=tables)
+```
+
+\tiny
+Database Used: Northwind [https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL](https://en.wikiversity.org/wiki/Database_Examples/Northwind/PostgreSQL)
+
+You can practice with this dataset here [https://www.w3schools.com/sql/](https://www.w3schools.com/sql/)
+
+I installed PostgreSQL and then use pgAdmin to create Northwind dataset.
+\tiny
+
+
+## SELECT DISTINCT country FROM customers LIMIT 3;
+
+
+\hfil ![images/01.png](images/01.png){width=200px}  \hfil
+
+
+\small 
+```{r}
+tbl(con,"customers") %>%
+  distinct(country) %>% head(3) 
+```
+\small 
+
+
+## show_query() function: Generate SQL Query using R code
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(customerid, customername) %>% head(5) 
+```
+\small 
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(customerid, customername) %>% show_query()
+```
+\small 
+
+
+
+
+## \small SELECT customername FROM Customers WHERE Country='Mexico';
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  filter(country=="Mexico") %>%  select(customername) 
+```
+\small 
+
+ 
+
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  filter(country=="Mexico") %>%  
+  select(customername) %>%   show_query()
+```
+\small 
+
+
+## \tiny SELECT * FROM Customers WHERE (Country = 'Germany') AND (city = 'Berlin');
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(country,city, address) %>%
+  filter(country=="Germany",city=="Berlin") 
+```
+\small
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"customers") %>%
+  select(country,city, address) %>%
+  filter(country=="Germany",city=="Berlin")  %>% show_query()
+```
+\small
+
+
+
+## \tiny SELECT productname, price FROM products WHERE (price > 80.0)
+
+
+
+\small 
+```{r,message=FALSE}
+tbl(con,"products") %>%
+  select(productname,price) %>%
+  filter(price> 80)  
+```
+\small
+
+
+
+\small 
+```{r}
+tbl(con,"products") %>%
+  select(productname,price) %>%
+  filter(price> 80)  %>% show_query()
+```
+\small
+
+##
+
+
+
+
+\small 
+```{r,silent=TRUE}
+tbl(con,"products") %>%
+  select(productname,price) %>%
+  filter(price> 3*mean(price,na.rm = TRUE))
+```
+\small
+
+\small 
+```{sql}
+SELECT productname, price FROM products 
+	WHERE price > 3 * (SELECT AVG(price) FROM products);
+```
+\small
+
+
+
+
+
+
+## END
+
+
+
+
+
+
+```{r}
+dbDisconnect(con)
+```
+
+```{r,message=FALSE}
+#
+```
+
+
+
